@@ -90,7 +90,7 @@ class VannaBase(ABC):
 
         return f"Respond in the {self.language} language."
 
-    def generate_sql(self, question: str, allow_llm_to_see_data=False, **kwargs) -> str:
+    def generate_sql(self, question: str, allow_llm_to_see_data=True, **kwargs) -> str:
         """
         Example:
         ```python
@@ -601,7 +601,7 @@ class VannaBase(ABC):
 
         if initial_prompt is None:
             initial_prompt = f"You are a {self.dialect} expert. " + \
-            "Please help to generate a SQL query to answer the question. Your response should ONLY be based on the given context and follow the response guidelines and format instructions. "
+            "Please help to generate a SQL query to answer the question. Your response should ONLY be based on the given context, and you can implement fuzzy match using [CONTAINS STARTSWITH ENDSWITH STRINGEQUALS LIKE LENGTH SUBSTRING UPPER LOWER TRIM LTRIM RTRIM REPLACE CONCAT] in query because general layman is asking question, and your job is to try your best to understand the ambiguity, and provide with best near-accurate human-like thinking solution query, user can sometimes mistype or just write short words. And follow the response guidelines and format instructions. "
 
         initial_prompt = self.add_ddl_to_prompt(
             initial_prompt, ddl_list, max_tokens=self.max_tokens
@@ -617,7 +617,7 @@ class VannaBase(ABC):
         initial_prompt += (
             "===Response Guidelines \n"
             "1. If the provided context is sufficient, please generate a valid SQL query without any explanations for the question. \n"
-            "2. If the provided context is almost sufficient but requires knowledge of a specific string in a particular column, please generate an intermediate SQL query to find the distinct strings in that column. Prepend the query with a comment saying intermediate_sql \n"
+            "2. If the provided context is almost sufficient but requires knowledge of a specific string in a particular column, please generate an intermediate SQL query to find the distinct strings in that column. \n"
             "3. If the provided context is insufficient, please explain why it can't be generated. \n"
             "4. Please use the most relevant table(s). \n"
             "5. If the question has been asked and answered before, please repeat the answer exactly as it was given before. \n"
@@ -1686,7 +1686,7 @@ class VannaBase(ABC):
         print_results: bool = True,
         auto_train: bool = True,
         visualize: bool = True,  # if False, will not generate plotly code
-        allow_llm_to_see_data: bool = False,
+        allow_llm_to_see_data: bool = True,
     ) -> Union[
         Tuple[
             Union[str, None],
@@ -1717,7 +1717,7 @@ class VannaBase(ABC):
             question = input("Enter a question: ")
 
         try:
-            sql = self.generate_sql(question=question, allow_llm_to_see_data=allow_llm_to_see_data)
+            sql = self.generate_sql(question=question, allow_llm_to_see_data=True)
         except Exception as e:
             print(e)
             return None, None, None

@@ -11,6 +11,7 @@ class OpenAI_Chat(VannaBase):
 
         # default parameters - can be overrided using config
         self.temperature = 0.7
+        
 
         if "temperature" in config:
             self.temperature = config["temperature"]
@@ -107,9 +108,9 @@ class OpenAI_Chat(VannaBase):
             )
         else:
             if num_tokens > 3500:
-                model = "gpt-3.5-turbo-16k"
+                model = "gpt-4o-mini"
             else:
-                model = "gpt-3.5-turbo"
+                model = "gpt-4o-mini"
 
             print(f"Using model {model} for {num_tokens} tokens (approx)")
             response = self.client.chat.completions.create(
@@ -117,6 +118,9 @@ class OpenAI_Chat(VannaBase):
                 messages=prompt,
                 stop=None,
                 temperature=self.temperature,
+                verbosity="medium",
+                reasoning_effort="minimal"
+
             )
 
         # Find the first response from the chatbot that has text in it (some responses may not have text)
